@@ -1,0 +1,273 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>TOEFL Reading Practice</title>
+<style>
+:root{--bg:#f5f7fb;--card:#fff;--ink:#18202b;--muted:#667085;--line:#d7dce5;--accent:#4f36c8;--accent2:#7357e8;--good:#16794d;--warn:#a86200;--bad:#b42318}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif;background:var(--bg);color:var(--ink)}
+button,input{font:inherit}
+.hidden{display:none!important}
+.top{height:72px;background:linear-gradient(135deg,var(--accent),var(--accent2));color:#fff;display:flex;align-items:center;gap:14px;padding:12px 18px;position:sticky;top:0;z-index:30}
+.brand{font-weight:900;font-size:20px}.test-title{opacity:.92;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.timer{margin-left:auto;font-size:22px;font-weight:900;letter-spacing:.04em}.timer.low{color:#ffe4a8}
+.shell{max-width:1500px;margin:auto;padding:14px}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;box-shadow:0 8px 24px rgba(16,24,40,.06)}
+.landing{max-width:620px;margin:42px auto;padding:28px}
+.landing h1{margin-top:0}.field{display:grid;gap:6px;margin:14px 0}.field label{font-size:13px;font-weight:800}.field input{padding:12px;border:1px solid var(--line);border-radius:10px}
+.btn{border:0;border-radius:10px;padding:11px 15px;font-weight:800;cursor:pointer}.primary{background:var(--accent);color:#fff}.secondary{background:#fff;border:1px solid var(--line)}.danger{background:#fff1ef;color:var(--bad);border:1px solid #f3c1bc}
+.note{font-size:13px;color:var(--muted);line-height:1.45}.error{color:var(--bad);font-weight:700}
+.workspace{display:grid;grid-template-columns:minmax(380px,46%) minmax(420px,54%);height:calc(100vh - 100px);overflow:hidden}
+.passage-pane,.question-pane{min-height:0}
+.passage-pane{border-right:1px solid var(--line);display:flex;flex-direction:column}
+.pane-head{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--line);background:#fafafa}
+.pane-head strong{margin-right:auto}
+.zoom-label{font-size:12px;color:var(--muted);min-width:44px;text-align:center}
+.image-wrap{flex:1;overflow:auto;background:#eef1f6;padding:16px;text-align:center}
+#passageImage{max-width:none;transform-origin:top center;transition:transform .12s;box-shadow:0 4px 18px rgba(0,0,0,.15);background:#fff}
+.question-pane{display:flex;flex-direction:column;background:#fff}
+.navigator{padding:10px 12px;border-bottom:1px solid var(--line);display:flex;gap:7px;flex-wrap:wrap;max-height:126px;overflow:auto;background:#fff}
+.navbtn{width:36px;height:36px;border-radius:9px;border:1px solid var(--line);background:#fff;font-weight:800;cursor:pointer;position:relative}
+.navbtn.answered{background:#eaf8f0;border-color:#83c6a2;color:#12613b}.navbtn.flagged:after{content:"";position:absolute;right:2px;top:2px;width:8px;height:8px;background:#f2a000;border-radius:50%}.navbtn.current{outline:3px solid rgba(79,54,200,.22);border-color:var(--accent)}
+.questions-scroll{overflow:auto;flex:1;padding:14px 16px 100px;scroll-behavior:smooth}
+.qcard{padding:18px;margin-bottom:14px;border:1px solid var(--line);border-radius:14px;background:#fff}
+.qcard.active{border-color:#8b77e6;box-shadow:0 0 0 3px rgba(79,54,200,.08)}
+.qhead{display:flex;align-items:flex-start;gap:10px}.qno{font-weight:900;color:var(--accent);min-width:34px}.qtext{font-size:17px;line-height:1.45;font-weight:700;flex:1}
+.flag{border:1px solid var(--line);background:#fff;border-radius:9px;padding:7px 9px;cursor:pointer}.flag.on{background:#fff6db;border-color:#e9bd55}
+.opts{display:grid;gap:9px;margin-top:14px}.opt{display:flex;gap:10px;padding:11px 12px;border:1px solid var(--line);border-radius:10px;cursor:pointer;line-height:1.4}.opt:hover{border-color:#8b77e6}.opt input{margin-top:3px}.opt.selected{background:#f4f1ff;border-color:#8b77e6}
+.bottom-bar{position:absolute;right:14px;bottom:14px;left:calc(46% + 14px);display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.96);border:1px solid var(--line);border-radius:14px;padding:10px 12px;box-shadow:0 8px 25px rgba(0,0,0,.1);z-index:20}.bottom-bar .status{font-size:13px;color:var(--muted);margin-right:auto}
+.result{max-width:760px;margin:36px auto;padding:28px;text-align:center}.scorebig{font-size:70px;line-height:1;font-weight:950;color:var(--accent)}.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:20px 0}.stat{padding:13px;border:1px solid var(--line);border-radius:12px}.stat b{display:block;font-size:24px}
+.mobile-passage{display:none}
+@media(max-width:850px){
+ .workspace{display:block;height:auto;overflow:visible}.passage-pane{display:none}.question-pane{min-height:calc(100vh - 80px)}
+ .questions-scroll{height:auto;overflow:visible;padding-bottom:110px}.bottom-bar{position:fixed;left:12px;right:12px;bottom:12px}
+ .mobile-passage{display:inline-flex}.navigator{position:sticky;top:72px;z-index:15}.qcard{scroll-margin-top:210px}
+}
+.modal{position:fixed;inset:0;background:rgba(17,24,39,.55);display:flex;align-items:center;justify-content:center;padding:18px;z-index:100}.modal-box{background:#fff;border-radius:16px;max-width:900px;width:100%;max-height:90vh;display:flex;flex-direction:column}.modal-head{padding:12px 14px;border-bottom:1px solid var(--line);display:flex;gap:10px;align-items:center}.modal-head strong{margin-right:auto}.modal-body{overflow:auto;padding:14px;background:#eef1f6;text-align:center}.modal-body img{max-width:none;transform-origin:top center}
+</style>
+</head>
+<body>
+<header class="top">
+  <div class="brand">TOEFL Reading</div>
+  <div id="headerTitle" class="test-title">Practice Test</div>
+  <button id="mobilePassageBtn" class="btn secondary mobile-passage hidden" onclick="openPassageModal()">Passage</button>
+  <div id="timer" class="timer hidden">55:00</div>
+</header>
+
+<div class="shell">
+  <section id="landing" class="card landing">
+    <h1>Reading Practice Test</h1>
+    <p id="loadText" class="note">Loading test…</p>
+    <div id="startForm" class="hidden">
+      <div class="field"><label>Name</label><input id="studentName" autocomplete="name"></div>
+      <div class="field"><label>Class / Group</label><input id="studentClass" autocomplete="off"></div>
+      <div class="field"><label>Student ID (optional)</label><input id="studentCode" autocomplete="off"></div>
+      <p id="testInfo" class="note"></p>
+      <div id="resumeBox" class="note hidden"></div>
+      <button id="startBtn" class="btn primary" onclick="startAttempt()">Start Test</button>
+    </div>
+    <p id="landingError" class="error"></p>
+  </section>
+
+  <section id="testView" class="workspace card hidden">
+    <aside class="passage-pane">
+      <div class="pane-head">
+        <strong id="passageLabel">Passage</strong>
+        <button class="btn secondary" onclick="zoomPassage(-.15)">−</button>
+        <span id="zoomLabel" class="zoom-label">100%</span>
+        <button class="btn secondary" onclick="zoomPassage(.15)">+</button>
+        <button class="btn secondary" onclick="resetZoom()">Reset</button>
+      </div>
+      <div class="image-wrap"><img id="passageImage" alt="Reading passage"></div>
+    </aside>
+    <main class="question-pane">
+      <div id="navigator" class="navigator"></div>
+      <div id="questionsScroll" class="questions-scroll"></div>
+    </main>
+  </section>
+
+  <div id="bottomBar" class="bottom-bar hidden">
+    <span id="saveStatus" class="status">Saved locally</span>
+    <button class="btn secondary" onclick="jumpUnanswered()">Next unanswered</button>
+    <button class="btn primary" onclick="confirmSubmit()">Submit test</button>
+  </div>
+
+  <section id="resultView" class="card result hidden">
+    <h2>Test submitted</h2>
+    <div id="scoreBig" class="scorebig">—</div>
+    <p id="scoreText"></p>
+    <div class="result-grid">
+      <div class="stat"><span>Correct</span><b id="correctStat">—</b></div>
+      <div class="stat"><span>Answered</span><b id="answeredStat">—</b></div>
+      <div class="stat"><span>Time used</span><b id="timeStat">—</b></div>
+    </div>
+    <p class="note">Your submission has been recorded. You may close this page.</p>
+  </section>
+</div>
+
+<div id="passageModal" class="modal hidden">
+  <div class="modal-box">
+    <div class="modal-head"><strong id="modalPassageLabel">Passage</strong><button class="btn secondary" onclick="closePassageModal()">Close</button></div>
+    <div class="modal-body"><img id="modalPassageImage" alt="Reading passage"></div>
+  </div>
+</div>
+
+<script>
+const BACKEND_URL='https://script.google.com/macros/s/AKfycbxUj8rFd6O3288evoaweezbxtZPfbxtbcAQs60QmLVy_aaLrVjicf-KaI1RGJWqBiTg/exec';
+const DEFAULT_TEST_ID='reading-practice-1';
+const testId=new URLSearchParams(location.search).get('test')||DEFAULT_TEST_ID;
+const DEVICE_KEY='toeflReading.deviceId.v1';
+const STORAGE_PREFIX='toeflReading.attempt.v1.';
+let test=null, attempt=null, timerHandle=null, zoom=1, currentPassage=null, resultPollCount=0, questionObserver=null;
+
+function id(){return crypto?.randomUUID?crypto.randomUUID():'id-'+Date.now()+'-'+Math.random().toString(36).slice(2)}
+function deviceId(){let v=localStorage.getItem(DEVICE_KEY);if(!v){v=id();localStorage.setItem(DEVICE_KEY,v)}return v}
+function storageKey(){return STORAGE_PREFIX+testId}
+function saveLocal(){if(attempt)localStorage.setItem(storageKey(),JSON.stringify(attempt))}
+function loadLocal(){try{return JSON.parse(localStorage.getItem(storageKey())||'null')}catch(e){return null}}
+function esc(s){return String(s??'').replace(/[&<>"']/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[m]))}
+function jsonp(params,callback){
+  const cb='cb_'+Math.random().toString(36).slice(2);
+  window[cb]=(data)=>{try{callback(data)}finally{delete window[cb];script.remove()}};
+  const script=document.createElement('script');
+  script.src=BACKEND_URL+'?'+new URLSearchParams({...params,callback:cb,_:Date.now()});
+  script.onerror=()=>{delete window[cb];script.remove();callback({ok:false,error:'Network error'})};
+  document.body.appendChild(script);
+}
+function post(payload){
+  if(!BACKEND_URL||BACKEND_URL.includes('PASTE_APPS_SCRIPT'))return;
+  fetch(BACKEND_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/x-www-form-urlencoded;charset=UTF-8'},body:'payload='+encodeURIComponent(JSON.stringify(payload))}).catch(()=>{});
+}
+function loadTest(){
+  if(!BACKEND_URL||BACKEND_URL.includes('PASTE_APPS_SCRIPT')){
+    fail('Backend URL has not been configured yet.');return;
+  }
+  jsonp({action:'publicTest',testId},data=>{
+    if(!data.ok){fail(data.error||'Test could not be loaded.');return}
+    test=data.test;
+    document.getElementById('headerTitle').textContent=test.title;
+    document.getElementById('loadText').textContent=test.title;
+    document.getElementById('testInfo').textContent=`${test.questions.length} questions • ${test.durationMinutes} minutes • ${Object.keys(test.passages).length} passage(s)`;
+    document.getElementById('startForm').classList.remove('hidden');
+    const saved=loadLocal();
+    if(saved && saved.testId===testId && saved.status==='in_progress'){
+      document.getElementById('studentName').value=saved.name||'';
+      document.getElementById('studentClass').value=saved.className||'';
+      document.getElementById('studentCode').value=saved.studentCode||'';
+      document.getElementById('resumeBox').classList.remove('hidden');
+      document.getElementById('resumeBox').innerHTML=`<b>Saved attempt found.</b> ${Object.keys(saved.answers||{}).length}/${test.questions.length} answered. <button class="btn secondary" onclick="resumeAttempt()">Continue</button> <button class="btn danger" onclick="discardAttempt()">Start over</button>`;
+      document.getElementById('startBtn').classList.add('hidden');
+    }
+  });
+}
+function fail(msg){document.getElementById('landingError').textContent=msg;document.getElementById('loadText').textContent=''}
+function startAttempt(){
+  const name=document.getElementById('studentName').value.trim();
+  if(!name){alert('Please enter your name.');return}
+  attempt={attemptId:id(),testId,deviceId:deviceId(),name,className:document.getElementById('studentClass').value.trim(),studentCode:document.getElementById('studentCode').value.trim(),startedAt:new Date().toISOString(),status:'in_progress',answers:{},flags:{},activeQuestion:test.questions[0].no};
+  saveLocal(); post({action:'saveProgress',attempt:summaryPayload()});enterTest();
+}
+function resumeAttempt(){attempt=loadLocal();enterTest();post({action:'saveProgress',attempt:summaryPayload()})}
+function discardAttempt(){if(confirm('Delete the saved attempt on this browser?')){localStorage.removeItem(storageKey());location.reload()}}
+function enterTest(){
+  document.getElementById('landing').classList.add('hidden');document.getElementById('testView').classList.remove('hidden');document.getElementById('bottomBar').classList.remove('hidden');document.getElementById('timer').classList.remove('hidden');document.getElementById('mobilePassageBtn').classList.remove('hidden');
+  renderNavigator();renderQuestions();activateQuestion(attempt.activeQuestion||test.questions[0].no,false);startTimer();
+}
+function renderNavigator(){
+  const n=document.getElementById('navigator');n.innerHTML='';
+  test.questions.forEach(q=>{const b=document.createElement('button');b.className='navbtn';b.id='nav-'+q.no;b.textContent=q.no;b.onclick=()=>activateQuestion(q.no,true);n.appendChild(b)});
+  updateNavigator();
+}
+function renderQuestions(){
+  const box=document.getElementById('questionsScroll');box.innerHTML='';
+  test.questions.forEach(q=>{
+    const c=document.createElement('article');c.className='qcard';c.id='q-'+q.no;c.dataset.passage=q.passageId;
+    c.innerHTML=`<div class="qhead"><div class="qno">${q.no}.</div><div class="qtext">${esc(q.question)}</div><button id="flag-${q.no}" class="flag" onclick="toggleFlag(${q.no})">⚑</button></div><div class="opts">`+
+      q.options.map((o,i)=>`<label class="opt" id="opt-${q.no}-${i}"><input type="radio" name="q${q.no}" value="${i}" onchange="answer(${q.no},${i})"><b>${'ABCD'[i]}.</b><span>${esc(o)}</span></label>`).join('')+`</div>`;
+    box.appendChild(c);
+  });
+  Object.entries(attempt.answers||{}).forEach(([no,val])=>{const input=document.querySelector(`input[name="q${no}"][value="${val}"]`);if(input){input.checked=true;input.closest('.opt').classList.add('selected')}});
+  Object.keys(attempt.flags||{}).forEach(no=>{if(attempt.flags[no])document.getElementById('flag-'+no)?.classList.add('on')});
+  if(questionObserver) questionObserver.disconnect();
+  questionObserver=new IntersectionObserver(entries=>{
+    const visible=entries.filter(e=>e.isIntersecting).sort((a,b)=>b.intersectionRatio-a.intersectionRatio)[0];
+    if(visible){const no=Number(visible.target.id.replace('q-',''));if(String(attempt.activeQuestion)!==String(no))activateQuestion(no,false)}
+  },{root:box,threshold:[0.45,0.6,0.8]});
+  document.querySelectorAll('.qcard').forEach(el=>questionObserver.observe(el));
+}
+function activateQuestion(no,scroll=true){
+  const q=test.questions.find(x=>String(x.no)===String(no));if(!q)return;
+  attempt.activeQuestion=q.no;saveLocal();
+  document.querySelectorAll('.qcard').forEach(x=>x.classList.remove('active'));document.getElementById('q-'+q.no)?.classList.add('active');
+  if(scroll)document.getElementById('q-'+q.no)?.scrollIntoView({behavior:'smooth',block:'start'});
+  if(currentPassage!==q.passageId){currentPassage=q.passageId;showPassage(q.passageId)}
+  updateNavigator();
+}
+function showPassage(pid){
+  const p=test.passages[pid]||{};document.getElementById('passageLabel').textContent=p.label||pid;document.getElementById('modalPassageLabel').textContent=p.label||pid;
+  const src=p.image||'';document.getElementById('passageImage').src=src;document.getElementById('modalPassageImage').src=src;resetZoom();
+}
+function answer(no,val){
+  attempt.answers[String(no)]=val;
+  document.querySelectorAll(`input[name="q${no}"]`).forEach(i=>i.closest('.opt').classList.toggle('selected',i.checked));
+  attempt.activeQuestion=no;saveLocal();updateNavigator();setSave('Saved locally • syncing…');post({action:'saveProgress',attempt:summaryPayload()});setTimeout(()=>setSave('Saved locally • synced'),700);
+}
+function toggleFlag(no){attempt.flags[String(no)]=!attempt.flags[String(no)];document.getElementById('flag-'+no).classList.toggle('on',attempt.flags[String(no)]);saveLocal();updateNavigator();post({action:'saveProgress',attempt:summaryPayload()})}
+function updateNavigator(){
+  test.questions.forEach(q=>{const b=document.getElementById('nav-'+q.no);if(!b)return;b.classList.toggle('answered',attempt.answers[String(q.no)]!==undefined);b.classList.toggle('flagged',!!attempt.flags[String(q.no)]);b.classList.toggle('current',String(attempt.activeQuestion)===String(q.no))});
+}
+function setSave(s){document.getElementById('saveStatus').textContent=s}
+function jumpUnanswered(){const q=test.questions.find(x=>attempt.answers[String(x.no)]===undefined);if(q)activateQuestion(q.no,true);else alert('All questions have an answer.')}
+function zoomPassage(delta){zoom=Math.min(2.5,Math.max(.5,zoom+delta));applyZoom()}
+function resetZoom(){zoom=1;applyZoom()}
+function applyZoom(){document.getElementById('passageImage').style.transform=`scale(${zoom})`;document.getElementById('modalPassageImage').style.transform=`scale(${zoom})`;document.getElementById('zoomLabel').textContent=Math.round(zoom*100)+'%'}
+function openPassageModal(){document.getElementById('passageModal').classList.remove('hidden')}
+function closePassageModal(){document.getElementById('passageModal').classList.add('hidden')}
+function elapsedSec(){return Math.max(0,Math.floor((Date.now()-new Date(attempt.startedAt).getTime())/1000))}
+function remainingSec(){return Math.max(0,test.durationMinutes*60-elapsedSec())}
+function startTimer(){
+  clearInterval(timerHandle);tick();timerHandle=setInterval(tick,1000);
+}
+function tick(){
+  const r=remainingSec(),m=Math.floor(r/60),s=r%60;const el=document.getElementById('timer');el.textContent=`${String(m).padStart(2,'0')}:${String(s).padStart(2,'0')}`;el.classList.toggle('low',r<=300);
+  if(r<=0){clearInterval(timerHandle);submitFinal(true)}
+}
+function summaryPayload(){return {attemptId:attempt.attemptId,testId,deviceId:attempt.deviceId,name:attempt.name,className:attempt.className,studentCode:attempt.studentCode,startedAt:attempt.startedAt,status:attempt.status,answeredCount:Object.keys(attempt.answers||{}).length,totalQuestions:test.questions.length,activeQuestion:attempt.activeQuestion,flags:Object.keys(attempt.flags||{}).filter(k=>attempt.flags[k]),answers:attempt.answers}}
+function confirmSubmit(){
+  const unanswered=test.questions.filter(q=>attempt.answers[String(q.no)]===undefined).length;
+  const flagged=Object.values(attempt.flags||{}).filter(Boolean).length;
+  if(confirm(`Submit now?\n\nUnanswered: ${unanswered}\nFlagged: ${flagged}\n\nYou cannot change answers after submission.`))submitFinal(false);
+}
+function submitFinal(auto){
+  if(attempt.status==='submitted')return;
+  attempt.status='submitted';attempt.submittedAt=new Date().toISOString();attempt.timeUsedSec=elapsedSec();saveLocal();clearInterval(timerHandle);
+  setSave(auto?'Time is up • submitting…':'Submitting…');
+  post({action:'submitAttempt',attempt:{...summaryPayload(),submittedAt:attempt.submittedAt,timeUsedSec:attempt.timeUsedSec}});
+  document.getElementById('bottomBar').classList.add('hidden');document.getElementById('testView').classList.add('hidden');pollResult();
+}
+function pollResult(){
+  resultPollCount++;jsonp({action:'result',testId,attemptId:attempt.attemptId},data=>{
+    if(data.ok&&data.result){attempt.status='completed';attempt.result=data.result;saveLocal();showResult(data.result);return}
+    if(resultPollCount<12)setTimeout(pollResult,1000);else{document.getElementById('resultView').classList.remove('hidden');document.getElementById('scoreText').textContent='Submission recorded. Score is still being processed; refresh this page shortly.'}
+  });
+}
+function showResult(r){
+  document.getElementById('resultView').classList.remove('hidden');document.getElementById('timer').classList.add('hidden');
+  document.getElementById('scoreBig').textContent=`${r.score}/${r.totalQuestions}`;
+  document.getElementById('scoreText').textContent=`${r.percent}%`;
+  document.getElementById('correctStat').textContent=r.score;document.getElementById('answeredStat').textContent=r.answeredCount;document.getElementById('timeStat').textContent=formatTime(r.timeUsedSec);
+}
+function formatTime(sec){const m=Math.floor(sec/60),s=sec%60;return `${m}m ${s}s`}
+window.addEventListener('DOMContentLoaded',()=>{
+  const saved=loadLocal();
+  if(saved?.status==='completed'&&saved.result){attempt=saved;document.getElementById('landing').classList.add('hidden');document.getElementById('headerTitle').textContent='TOEFL Reading';showResult(saved.result)}
+  else if(saved?.status==='submitted'){attempt=saved;document.getElementById('landing').classList.add('hidden');document.getElementById('headerTitle').textContent='TOEFL Reading';document.getElementById('resultView').classList.remove('hidden');document.getElementById('scoreText').textContent='Recovering your submitted result…';pollResult()}
+  else loadTest();
+});
+window.addEventListener('beforeunload',saveLocal);
+</script>
+</body>
+</html>
